@@ -7,9 +7,9 @@ component output="false" {
 	public Cloudinary function init(required settings){
 		variables.api = {
 			 key 		:settings.key
-			,url     	:settings.url
 			,cloudname	:settings.cloudname
 			,secret  	:settings.secret
+			,url     	:settings.url?:"https://api.cloudinary.com/v1_1/"
 			,localroot  :settings.localroot?:""
 		};
 		
