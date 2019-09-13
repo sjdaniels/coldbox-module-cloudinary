@@ -27,9 +27,9 @@ component output="false" {
 	}
 
 	public string function getImageSrc(string transformations, boolean direct=false, boolean https=true){
-		var result = "#variables.api.localroot#/"
+		var result = variables.api.localroot;
 		
-		if (arguments.direct || result == "/") 
+		if (arguments.direct || result == "") 
 			result = "http#arguments.https?'s':''#://res.cloudinary.com/#variables.api.cloudname#/image/upload/"
 		
 
