@@ -40,8 +40,8 @@ component output="false" {
 		return result;
 	}
 
-	public struct function getDetails(required string public_id, string resource_type="image", string type="upload", boolean faces=false){
-		var params = { "faces":arguments.faces }
+	public struct function getDetails(required string public_id, string resource_type="image", string type="upload", boolean faces=false, boolean phash=true){
+		var params = { "faces":arguments.faces, "phash":arguments.phash }
 
 		return callAdmin("resources/#arguments.resource_type#/#arguments.type#/#arguments.public_id#",params);
 	}
