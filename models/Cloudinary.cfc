@@ -42,7 +42,6 @@ component output="false" {
 
 	public struct function getDetails(required string public_id, string resource_type="image", string type="upload", boolean faces=false, boolean phash=true){
 		var params = { "faces":arguments.faces, "phash":arguments.phash }
-
 		return callAdmin("resources/#arguments.resource_type#/#arguments.type#/#arguments.public_id#",params);
 	}
 
@@ -58,7 +57,7 @@ component output="false" {
 		// these are the fields we need to include in signature if they appear in params
 		// they say only these: ["callback", "eager", "format", "public_id", "tags", "timestamp", "transformation", "type"]
 		// but i have found otherwise because they are fucknuts. fuck them.
-		var signaturefields = ["callback", "eager", "format", "public_id", "tags", "timestamp", "transformation", "type", "folder", "invalidate", "faces"]
+		var signaturefields = ["callback", "eager", "format", "public_id", "tags", "timestamp", "transformation", "type", "folder", "invalidate", "faces", "display_name", "moderation"]
 
 		// add timestamp
 		arguments.params["timestamp"] = DateDiff("s", createdate(1970,1,1), now())
@@ -84,7 +83,7 @@ component output="false" {
 		return arguments.params;
 	}
 
-	private function call(required string action, struct params, string method="get"){
+	private function call(required string action, struct params, string method="get", boolean moderation=false){
 		params["api_key"] = api.key;
 		var parameters = paramsWithSignature(params);
 
@@ -95,14 +94,15 @@ component output="false" {
 					local.type = "formfield"
 
 				if (isImageFile(parameters[local.param]))
-					httpparam name="#local.param#" file="#parameters[local.param]#" type="file";
+					httpparam name="#local.param#" file="#parameters[local.param]#" type="file"; 
+				else if(local.param EQ "file")
+					httpparam name="#local.param#" file="#parameters[local.param]#" type="file";   
 				else 
 					httpparam name="#local.param#" value="#parameters[local.param]#" type="#local.type#";
 			}
 		}
-
 		try {
-			var result = deserializeJSON(local.cfhttp.filecontent)
+			var result = deserializeJSON(local.cfhttp.filecontent);
 			if (!isnull(result.error))
 				throw;
 		} catch (any local.e){
@@ -127,7 +127,7 @@ component output="false" {
 		}
 
 		try {
-			var result = deserializeJSON(local.cfhttp.filecontent)
+			var result = deserializeJSON(local.cfhttp.filecontent);
 			if (!isnull(result.error))
 				throw;
 		} catch (any local.e){
@@ -140,6 +140,16 @@ component output="false" {
 	private void function throwAPIException(required any response){
 
 		throw(type:"CloudinaryException",message:"Cloudinary API Exception.",detail:serializeJSON(arguments.response));
+	}
+
+	public struct function uploadFile(){
+		var params = {"faces":true}
+		params["moderation"] = "perception_point"; 
+		for (arg in arguments){
+			params[arg] = arguments[arg];
+		}
+
+		return call("auto/upload", params, "post", true);
 	}
 
 }
